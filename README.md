@@ -4,7 +4,7 @@ The File Download Button is a component designed to facilitate the downloading o
 
 ## File download component
 
-![download](https://github.com/b-fadwa/Qodly-file-download/blob/develop/public/download.png)
+![download](https://github.com/b-fadwa/Qodly-file-download/blob/main/public/download.png)
 
 ### Properties
 
