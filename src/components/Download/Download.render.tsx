@@ -54,10 +54,15 @@ const Download: FC<IDownloadProps> = ({ label, iconPosition,style, className, cl
       }
     };
     let src = null;
-    console.log(value);
-
-    const val = JSON.parse(value);
-    console.log(val);
+    
+    let val: any;
+    if (value.startsWith('{') && value.endsWith('}')) {
+      //object case
+      val = JSON.parse(value);
+    } else {
+      //string case
+      val = value;
+    }
 
     if (typeof val === 'object') {
       const deferred = val.__deferred;
