@@ -1,6 +1,6 @@
 import { EComponentKind, T4DComponentConfig } from '@ws-ui/webform-editor';
 import { Settings } from '@ws-ui/webform-editor';
-import { MdOutlineTextSnippet } from 'react-icons/md';
+import { FaFileDownload } from 'react-icons/fa';
 
 import DownloadSettings, { BasicSettings } from './Download.settings';
 
@@ -20,7 +20,7 @@ export default {
   info: {
     displayName: 'Download',
     exposed: true,
-    icon: MdOutlineTextSnippet,
+    icon: FaFileDownload,
     events: [
       {
         label: 'On Click',
