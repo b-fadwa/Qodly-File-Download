@@ -1,11 +1,23 @@
-import { useEnhancedEditor, useLayout, useRenderer, useSources,selectResolver } from '@ws-ui/webform-editor';
+import {
+  useEnhancedEditor,
+  useLayout,
+  useRenderer,
+  useSources,
+  selectResolver,
+} from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import { IDownloadProps } from './Download.config';
 import { Element } from '@ws-ui/craftjs-core';
 
-const Download: FC<IDownloadProps> = ({ label, iconPosition,style, className, classNames = [] }) => {
+const Download: FC<IDownloadProps> = ({
+  label,
+  iconPosition,
+  style,
+  className,
+  classNames = [],
+}) => {
   const { connect } = useRenderer();
   const [value, setValue] = useState<any>(null);
   const [fileName, setFileName] = useState<string>('');
@@ -21,10 +33,24 @@ const Download: FC<IDownloadProps> = ({ label, iconPosition,style, className, cl
     if (!ds) return;
 
     const listener = async (/* event */) => {
-      const v = await ds.getValue<any>();
+      let v = await ds.getValue<any>();
+
+      //used to check whether the string content is an object or a string
+      const validObject = (val: string) => {
+        let output: any;
+        try {
+          output = JSON.parse(val);
+        } catch {
+          output = val;
+        }
+        return output;
+      };
+
+      v = validObject(v);
       setValue(v);
-      const val = await ce.getValue<string>();
-      setFileName(val || 'file');
+
+      const val = ce != null ? await ce.getValue<string>() : 'file'; //in case the name was not given
+      setFileName(val);
     };
 
     listener();
@@ -40,13 +66,16 @@ const Download: FC<IDownloadProps> = ({ label, iconPosition,style, className, cl
   const download = () => {
     const fetchDocument = async (url: any) => {
       try {
-        const response = await axios.get(url, { responseType: 'blob' });
+        const response = await axios.get(url, {
+          responseType: 'blob',
+        });
         const blobUrl = URL.createObjectURL(response.data);
         const downloadLink = document.createElement('a');
         downloadLink.href = blobUrl;
         downloadLink.download = fileName;
         document.body.appendChild(downloadLink);
         downloadLink.click();
+        // downloadLink.remove()
         document.body.removeChild(downloadLink);
         URL.revokeObjectURL(blobUrl);
       } catch {
@@ -54,24 +83,14 @@ const Download: FC<IDownloadProps> = ({ label, iconPosition,style, className, cl
       }
     };
     let src = null;
-    
-    let val: any;
-    if (value.startsWith('{') && value.endsWith('}')) {
-      //object case
-      val = JSON.parse(value);
-    } else {
-      //string case
-      val = value;
-    }
-
-    if (typeof val === 'object') {
-      const deferred = val.__deferred;
+    if (typeof value === 'object') {
+      const deferred = value.__deferred;
       if (deferred != null && typeof deferred === 'object') {
         const uri = deferred.uri;
         if (uri != null) src = uri;
       }
-    } else if (typeof val === 'string') {
-      src = val;
+    } else if (typeof value === 'string') {
+      src = value;
     }
 
     if (src != null) fetchDocument(src);
