@@ -9,9 +9,9 @@ The File Download Button is a component designed to facilitate the downloading o
 ### Properties
 
 | Name          | Type   | Default       | Description                                                                                                                                           |
-| ------------- | ------ | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| ------------- | ------ | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | label         | string | Download File | This is the label that will be displayed inside the file download button.                                                                             |
-| Icon position |        | left          | This property sets the position of the download's button's icon according to the label. The proposed options are: top, bottom, left, right, or hidden |     |
+| Icon position |        | left          | This property sets the position of the download's button's icon according to the label. The proposed options are: top, bottom, left, right, or hidden |     
 
 ### Datasource
 
