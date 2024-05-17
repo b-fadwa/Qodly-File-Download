@@ -1,15 +1,10 @@
-import {
-  useEnhancedEditor,
-  useLayout,
-  useRenderer,
-  useSources,
-  selectResolver,
-} from '@ws-ui/webform-editor';
+import { useEnhancedEditor, useLayout, useRenderer, selectResolver } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import { IDownloadProps } from './Download.config';
 import { Element } from '@ws-ui/craftjs-core';
+import { useSources } from './useSources';
 
 const Download: FC<IDownloadProps> = ({
   label,
@@ -23,7 +18,7 @@ const Download: FC<IDownloadProps> = ({
   const [fileName, setFileName] = useState<string>('');
   const {
     sources: { datasource: ds, currentElement: ce },
-  } = useSources();
+  } = useSources({ acceptIteratorSel: true });
 
   const { getClassName } = useLayout();
 
@@ -35,11 +30,9 @@ const Download: FC<IDownloadProps> = ({
     const listener = async (/* event */) => {
       let v = await ds.getValue<any>();
       if (!v) return;
-      
       try {
         v = JSON.parse(v);
-      } catch (error) {
-      }
+      } catch (error) {}
 
       let src = null;
       if (typeof v === 'object') {
@@ -51,12 +44,12 @@ const Download: FC<IDownloadProps> = ({
       } else if (typeof v === 'string') {
         src = v;
       }
-      if (src != null) setValue(src);
+      if (src != null) {
+        setValue(src);
+      }
 
-      // setValue(v);
-
-      const val = ce != null ? await ce.getValue<string>() : 'file'; //in case the name was not given
-      setFileName(val);
+      const val = await ce.getValue<string>(); //in case the name was not given
+      setFileName(val || 'File');
     };
 
     listener();
@@ -67,7 +60,7 @@ const Download: FC<IDownloadProps> = ({
       ds.removeListener('changed', listener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
+  }, [ds, ce]);
 
   const download = () => {
     const fetchDocument = async (url: any) => {

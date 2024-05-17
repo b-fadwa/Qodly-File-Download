@@ -5,6 +5,7 @@ import {
   isAttributePayload,
   isDatasourcePayload,
 } from '@ws-ui/webform-editor';
+import {isScalarDatasource } from '@ws-ui/shared';
 import { Settings } from '@ws-ui/webform-editor';
 import { FaFileDownload } from 'react-icons/fa';
 import { cloneDeep } from 'lodash';
@@ -27,6 +28,18 @@ export default {
     displayName: 'Download',
     exposed: true,
     icon: FaFileDownload,
+    sanityCheck: {
+      keys: [
+        { name: 'datasource', require: true, isDatasource: true },
+      ],
+      // require:true,
+      // isDatasource:true,
+    },
+    requiredFields: {
+      keys: ['datasource'],
+      all: true,
+    },
+
     events: [
       {
         label: 'On Click',
@@ -58,10 +71,9 @@ export default {
       },
     ],
     datasources: {
-      set: (nodeId, query, payload) => {
+      set: (nodeId, query, payload,iterator) => {
         const new_props: webforms.ComponentProps = cloneDeep(query.node(nodeId).get().data.props);
-        
-        const updateProps = (sourceId:string) => {
+        const updateProps = (sourceId: string) => {
           if (new_props.datasource == null) {
             new_props.datasource = sourceId;
           } else {
@@ -69,11 +81,15 @@ export default {
           }
         };
 
-        payload.forEach((item) => {     
-          if (isDatasourcePayload(item) && item.source.dataType === 'string') {
-            updateProps(getDataTransferSourceID(item));
+        payload.forEach((item) => {
+          if (
+            isDatasourcePayload(item) &&
+            isScalarDatasource(item.source) &&
+            item.source.dataType === 'string'
+          ) {
+            updateProps(getDataTransferSourceID(item,iterator));
           } else if (isAttributePayload(item)) {
-            const sourceId = getDataTransferSourceID(item);
+            const sourceId = getDataTransferSourceID(item,iterator);
             if (item.attribute.type === 'blob' || item.attribute.type === 'string') {
               updateProps(sourceId);
             }
@@ -86,6 +102,7 @@ export default {
     },
   },
   defaultProps: {
+    iterableChild: true,
     label: 'Download File',
     iconPosition: 'left',
     style: {
