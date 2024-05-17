@@ -17,6 +17,6 @@ The File Download Button is a component designed to facilitate the downloading o
 
 | Name       | Type   | Required | Description                                                                                                   |
 | ---------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------- |
-| Datasource | blob or string   | Yes      | Will contain the to be downloaded file path. The provided datasource can be of type blob and will hold the content of the file, or simply a url.                                                                 |
-| File Name  | string | No      | Will contain the to be downloaded file name with the extension. Once downloaded, the resulting file will be fully named by that string.                                                |
+| Datasource | blob or string   | Yes      | Will contain the file path. The provided datasource can be of type blob and will hold the content of the file, or simply a url.                                                                 |
+| File Name  | string | No      | Will contain the file name with the extension. Once downloaded, the resulting file will be fully named by that string.                                                |
 | Server ref | string | No       | Will contain the button's reference in case the user wants to perform some server-side actions on this latter By doing so, you enable the utilization of this reference in class functions, thereby governing the component's actions. |
