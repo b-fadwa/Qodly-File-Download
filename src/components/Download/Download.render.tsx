@@ -34,20 +34,26 @@ const Download: FC<IDownloadProps> = ({
 
     const listener = async (/* event */) => {
       let v = await ds.getValue<any>();
+      if (!v) return;
+      
+      try {
+        v = JSON.parse(v);
+      } catch (error) {
+      }
 
-      //used to check whether the string content is an object or a string
-      const validObject = (val: string) => {
-        let output: any;
-        try {
-          output = JSON.parse(val);
-        } catch {
-          output = val;
+      let src = null;
+      if (typeof v === 'object') {
+        const deferred = v.__deferred;
+        if (deferred != null && typeof deferred === 'object') {
+          const uri = deferred.uri;
+          if (uri != null) src = uri;
         }
-        return output;
-      };
+      } else if (typeof v === 'string') {
+        src = v;
+      }
+      if (src != null) setValue(src);
 
-      v = validObject(v);
-      setValue(v);
+      // setValue(v);
 
       const val = ce != null ? await ce.getValue<string>() : 'file'; //in case the name was not given
       setFileName(val);
@@ -75,25 +81,14 @@ const Download: FC<IDownloadProps> = ({
         downloadLink.download = fileName;
         document.body.appendChild(downloadLink);
         downloadLink.click();
-        // downloadLink.remove()
         document.body.removeChild(downloadLink);
         URL.revokeObjectURL(blobUrl);
       } catch {
         // todo
       }
     };
-    let src = null;
-    if (typeof value === 'object') {
-      const deferred = value.__deferred;
-      if (deferred != null && typeof deferred === 'object') {
-        const uri = deferred.uri;
-        if (uri != null) src = uri;
-      }
-    } else if (typeof value === 'string') {
-      src = value;
-    }
 
-    if (src != null) fetchDocument(src);
+    fetchDocument(value);
   };
 
   return (
