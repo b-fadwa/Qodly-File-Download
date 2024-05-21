@@ -5,7 +5,6 @@ import {
   isAttributePayload,
   isDatasourcePayload,
 } from '@ws-ui/webform-editor';
-import {isScalarDatasource } from '@ws-ui/shared';
 import { Settings } from '@ws-ui/webform-editor';
 import { FaFileDownload } from 'react-icons/fa';
 import { cloneDeep } from 'lodash';
@@ -29,9 +28,7 @@ export default {
     exposed: true,
     icon: FaFileDownload,
     sanityCheck: {
-      keys: [
-        { name: 'datasource', require: true, isDatasource: true },
-      ],
+      keys: [{ name: 'datasource', require: true, isDatasource: true }],
       // require:true,
       // isDatasource:true,
     },
@@ -71,7 +68,7 @@ export default {
       },
     ],
     datasources: {
-      set: (nodeId, query, payload,iterator) => {
+      set: (nodeId, query, payload, iterator) => {
         const new_props: webforms.ComponentProps = cloneDeep(query.node(nodeId).get().data.props);
         const updateProps = (sourceId: string) => {
           if (new_props.datasource == null) {
@@ -84,12 +81,12 @@ export default {
         payload.forEach((item) => {
           if (
             isDatasourcePayload(item) &&
-            isScalarDatasource(item.source) &&
+            item.source.type === 'scalar' &&
             item.source.dataType === 'string'
           ) {
-            updateProps(getDataTransferSourceID(item,iterator));
+            updateProps(getDataTransferSourceID(item, iterator));
           } else if (isAttributePayload(item)) {
-            const sourceId = getDataTransferSourceID(item,iterator);
+            const sourceId = getDataTransferSourceID(item, iterator);
             if (item.attribute.type === 'blob' || item.attribute.type === 'string') {
               updateProps(sourceId);
             }
