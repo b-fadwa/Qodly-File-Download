@@ -1,17 +1,24 @@
-import { useEnhancedEditor, useLayout, useRenderer, useSources,selectResolver } from '@ws-ui/webform-editor';
+import { useEnhancedEditor, useLayout, useRenderer, selectResolver } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import { IDownloadProps } from './Download.config';
 import { Element } from '@ws-ui/craftjs-core';
+import { useSources } from './useSources';
 
-const Download: FC<IDownloadProps> = ({ label, iconPosition,style, className, classNames = [] }) => {
+const Download: FC<IDownloadProps> = ({
+  label,
+  iconPosition,
+  style,
+  className,
+  classNames = [],
+}) => {
   const { connect } = useRenderer();
   const [value, setValue] = useState<any>(null);
   const [fileName, setFileName] = useState<string>('');
   const {
     sources: { datasource: ds, currentElement: ce },
-  } = useSources();
+  } = useSources({ acceptIteratorSel: true });
 
   const { getClassName } = useLayout();
 
@@ -21,10 +28,28 @@ const Download: FC<IDownloadProps> = ({ label, iconPosition,style, className, cl
     if (!ds) return;
 
     const listener = async (/* event */) => {
-      const v = await ds.getValue<any>();
-      setValue(v);
-      const val = await ce.getValue<string>();
-      setFileName(val || 'file');
+      let v = await ds.getValue<any>();
+      if (!v) return;
+      try {
+        v = JSON.parse(v);
+      } catch (error) {}
+
+      let src = null;
+      if (typeof v === 'object') {
+        const deferred = v.__deferred;
+        if (deferred != null && typeof deferred === 'object') {
+          const uri = deferred.uri;
+          if (uri != null) src = uri;
+        }
+      } else if (typeof v === 'string') {
+        src = v;
+      }
+      if (src != null) {
+        setValue(src);
+      }
+
+      const val = await ce.getValue<string>(); //in case the name was not given
+      setFileName(val || 'File');
     };
 
     listener();
@@ -35,12 +60,14 @@ const Download: FC<IDownloadProps> = ({ label, iconPosition,style, className, cl
       ds.removeListener('changed', listener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
+  }, [ds, ce]);
 
   const download = () => {
     const fetchDocument = async (url: any) => {
       try {
-        const response = await axios.get(url, { responseType: 'blob' });
+        const response = await axios.get(url, {
+          responseType: 'blob',
+        });
         const blobUrl = URL.createObjectURL(response.data);
         const downloadLink = document.createElement('a');
         downloadLink.href = blobUrl;
@@ -53,23 +80,8 @@ const Download: FC<IDownloadProps> = ({ label, iconPosition,style, className, cl
         // todo
       }
     };
-    let src = null;
-    console.log(value);
 
-    const val = JSON.parse(value);
-    console.log(val);
-
-    if (typeof val === 'object') {
-      const deferred = val.__deferred;
-      if (deferred != null && typeof deferred === 'object') {
-        const uri = deferred.uri;
-        if (uri != null) src = uri;
-      }
-    } else if (typeof val === 'string') {
-      src = val;
-    }
-
-    if (src != null) fetchDocument(src);
+    fetchDocument(value);
   };
 
   return (
