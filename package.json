@@ -2,7 +2,7 @@
   "app_id": "qodly_29100b5169c6dd537d9a",
   "name": "file_upload",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "author": {
     "name": "Qodly Team",
@@ -27,7 +27,7 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@qodly/cli": "^0.2.15",
+    "@qodly/cli": "^0.2.20",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
